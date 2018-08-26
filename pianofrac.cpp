@@ -131,7 +131,7 @@ void init_field_numbers()
 		{
 			int field_number = fieldNumberAt(j, i);
 			if (field_number != -1)
-				trans[0][k++] = field_number;
+				trans[1][k++] = field_number;
 		}
 
 	for (int i = 0, k = 0; i < FIELD_SIZE; i++)
@@ -139,7 +139,7 @@ void init_field_numbers()
 		{
 			int field_number = fieldNumberAt(4-i+j, 8-i);
 			if (field_number != -1)
-				trans[0][k++] = field_number;
+				trans[2][k++] = field_number;
 		}
 
 	for (int i = 0, k = 0; i < FIELD_SIZE; i++)
@@ -147,7 +147,7 @@ void init_field_numbers()
 		{
 			int field_number = fieldNumberAt(8-i, 4-i+j);
 			if (field_number != -1)
-				trans[0][k++] = field_number;
+				trans[3][k++] = field_number;
 		}
 
 	for (int i = 0, k = 0; i < FIELD_SIZE; i++)
@@ -155,7 +155,7 @@ void init_field_numbers()
 		{
 			int field_number = fieldNumberAt(4-j+i, 8-j);
 			if (field_number != -1)
-				trans[0][k++] = field_number;
+				trans[4][k++] = field_number;
 		}
 
 	for (int i = 0, k = 0; i < FIELD_SIZE; i++)
@@ -163,7 +163,7 @@ void init_field_numbers()
 		{
 			int field_number = fieldNumberAt(8-j, 4-j+i);
 			if (field_number != -1)
-				trans[0][k++] = field_number;
+				trans[5][k++] = field_number;
 		}
 }
 
@@ -879,12 +879,17 @@ public:
 			for (int i = 0; i < POSITIONS; i++)
 			{
 				int piece_nr = piece_numbers[trans[t][i]];
+				//printf("t=%d, i=%d, trans[t][i]=%d, piece_numbers[trans[t][i]] = %d\n", t, i, trans[t][i], piece_nr);
+				//printf("mapping[%d] == %d\n", piece_nr, mapping[piece_nr]);
 				if (mapping[piece_nr] == -1)
 				{
 					mapping[piece_nr] = candidate.nr_pieces++;
+					//printf("mapping[%d] == %d\n", piece_nr, mapping[piece_nr]);
 					candidate.pieces[mapping[piece_nr]] = pieces[piece_nr];
+					//printf("candidage.pieces[%d] = %d\n", mapping[piece_nr], pieces[piece_nr]);
 				}
 				candidate.piece_numbers[i] = mapping[piece_nr];
+				//printf("candidate.piece_numbers[%d] = %d\n", i, mapping[piece_nr]);
 			}
 			if (t == 0)
 				result = candidate;
@@ -1309,13 +1314,13 @@ public:
 				if (y < y_t)
 				{
 					if (y_bb < y_t)
-						fprintf(f, "<path d=\"M%.2lf %.2lf\n", x_bb, y_bb);
+						fprintf(f, "<path d=\" M%.2lf %.2lf\n", x_bb, y_bb);
 					else
-						fprintf(f, "<path d=\"M%.2lf %.2lf\n", x_t, y_t);
+						fprintf(f, "<path d=\"M %.2lf %.2lf\n", x_t, y_t);
 					fprintf(f, "L %.2lf %.2lf\n", x, y);
 				}
 				else
-					fprintf(f, "<path d=\"M%.2lf %.2lf\n", x, y);
+					fprintf(f, "<path d=\"M%.2lf %.2lf \n", x, y);
 				x = x_bottom_center - sqrt32 * d ;
 				y = y_bottom_center -    0.5 * d - r;
 				fprintf(f, "A %.2lf %.2lf 0 0 1 %.2lf %.2lf ", r, r, x, y);
@@ -1332,9 +1337,11 @@ public:
 				fprintf(f, "L %.2lf %.2lf\n", x, y);
 				fprintf(f, "A %.2lf %.2lf 0 0 1 %.2lf %.2lf ", r, r, x_bb, y_bb);
 				
-				if (y_bb > y_b)
+/*				if (y_bb > y_b)
 					fprintf(f, "L %.2lf %.2lf\n", x_b, y_b);
 				fprintf(f, "\" stroke=\"%s\" stroke-width=\"%.2lf\" fill-opacity=\"0.0\"/>\n", color, stroke_width);
+*/
+				fprintf(f, " Z\" stroke=\"%s\" stroke-width=\"%.2lf\" fill-opacity=\"0.0\"/>\n", color, stroke_width);
 			}
 		}
 
@@ -1440,7 +1447,8 @@ void print_usage(const char *program_name)
 			"  %s used_pieces [-max_occ=n] [-sup_occ=n] [-max=n] [-min=n]\n"
 			"  %s filter (<pieces>)\n"
 			"  %s print\n" 
-			"  %s svg [-border_rad=n] [-border_d=n] [-depth=n] [-colour=c] [-stroke_width=n] [-side_length=n]\n",
+			"  %s svg [-border_rad=r] [-border_d=r] [-depth=n] [-colour=c] [-stroke_width=r] [-side_length=r]\n"
+			"         [-bottom] [-width=r] [-height=r] [-margin=r]",
 			program_name, program_name, program_name, program_name,
 			program_name, program_name, program_name);
 }
@@ -1574,6 +1582,7 @@ int main(int argc, char *argv[])
 		
 		for (SolutionIterator sol_it(stdin); sol_it.more(); sol_it.next())
 		{
+			//sol_it.print(stdout);
 			Solution normalized;
 			sol_it.normalize(normalized);
 			if (!filter_minimal || sol_it.minimal)
@@ -1709,10 +1718,7 @@ int main(int argc, char *argv[])
 			{
 				double value;
 				if (sscanf(argv[i]+13, "%lf", &value) > 0)
-				{
-					//fprintf(stderr, "border_d = %lf\n", value);
 					generateSVG.sidelength = value;
-				}
 			}
 			else if (strcmp(argv[i], "-bottom") == 0)
 			{
