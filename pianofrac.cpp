@@ -131,7 +131,7 @@ void init_field_numbers()
 		{
 			int field_number = fieldNumberAt(j, i);
 			if (field_number != -1)
-				trans[0][k++] = field_number;
+				trans[1][k++] = field_number;
 		}
 
 	for (int i = 0, k = 0; i < FIELD_SIZE; i++)
@@ -139,7 +139,7 @@ void init_field_numbers()
 		{
 			int field_number = fieldNumberAt(4-i+j, 8-i);
 			if (field_number != -1)
-				trans[0][k++] = field_number;
+				trans[2][k++] = field_number;
 		}
 
 	for (int i = 0, k = 0; i < FIELD_SIZE; i++)
@@ -147,7 +147,7 @@ void init_field_numbers()
 		{
 			int field_number = fieldNumberAt(8-i, 4-i+j);
 			if (field_number != -1)
-				trans[0][k++] = field_number;
+				trans[3][k++] = field_number;
 		}
 
 	for (int i = 0, k = 0; i < FIELD_SIZE; i++)
@@ -155,7 +155,7 @@ void init_field_numbers()
 		{
 			int field_number = fieldNumberAt(4-j+i, 8-j);
 			if (field_number != -1)
-				trans[0][k++] = field_number;
+				trans[4][k++] = field_number;
 		}
 
 	for (int i = 0, k = 0; i < FIELD_SIZE; i++)
@@ -163,7 +163,7 @@ void init_field_numbers()
 		{
 			int field_number = fieldNumberAt(8-j, 4-j+i);
 			if (field_number != -1)
-				trans[0][k++] = field_number;
+				trans[5][k++] = field_number;
 		}
 }
 
@@ -1440,7 +1440,8 @@ void print_usage(const char *program_name)
 			"  %s used_pieces [-max_occ=n] [-sup_occ=n] [-max=n] [-min=n]\n"
 			"  %s filter (<pieces>)\n"
 			"  %s print\n" 
-			"  %s svg [-border_rad=n] [-border_d=n] [-depth=n] [-colour=c] [-stroke_width=n] [-side_length=n]\n",
+			"  %s svg [-border_rad=r] [-border_d=r] [-depth=n] [-colour=c] [-stroke_width=r] [-side_length=r]\n"
+			"         [-bottom] [-width=r] [-height=r] [-margin=r]",
 			program_name, program_name, program_name, program_name,
 			program_name, program_name, program_name);
 }
@@ -1630,6 +1631,11 @@ int main(int argc, char *argv[])
 				exit(1);
 			}
 		}
+		bool found_solutions = false;
+		int min_max_occ = 1000;
+		int min_sup_occ = 1000;
+		int min_max = 1000;
+		int max_min = 0;
 		for (SolutionIterator sol_it(stdin); sol_it.more(); sol_it.next())
 		{
 			PieceOccurances pieceOccurances(sol_it);
@@ -1639,9 +1645,23 @@ int main(int argc, char *argv[])
 				&& sol_it.nr_pieces <= max 
 				&& sol_it.nr_pieces >= min)
 			{
+				found_solutions = true;
 				pieceOccurances.printSignature(stdout);
 			}
+			else
+			{
+				if (pieceOccurances.max_occ < min_max_occ)
+					min_max_occ = pieceOccurances.max_occ;
+				if (sol_it.nr_pieces - pieceOccurances.nr_used_pieces < min_sup_occ)
+					min_sup_occ = sol_it.nr_pieces - pieceOccurances.nr_used_pieces;
+				if (sol_it.nr_pieces < min_max)
+					min_max = sol_it.nr_pieces;
+				if (sol_it.nr_pieces > max_min)
+					max_min = sol_it.nr_pieces;
+			}
 		}
+		if (!found_solutions)
+			fprintf(stderr, "No solutions found: -max_occ >= %d, -sup_occ= >= %d, -max >= %d -min <= %d\n", min_max_occ, min_sup_occ, min_max, max_min);
 	}		
 	else if (strcmp(argv[1], "filter") == 0)
 	{
