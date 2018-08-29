@@ -67,8 +67,8 @@ char fieldAt(int i, int j)
 	return field[i+1][j+1];
 }
 
-#define POSITIONS 52								// number of x and X in field
-#define BLACK_POSITIONS 19							// numbor of X in field
+#define POSITIONS 52					// number of x and X in field
+#define BLACK_POSITIONS 19				// numbor of X in field
 #define WHITE_POSITIONS (POSITIONS-BLACK_POSITIONS)	// number of x in field
 
 // Unique numbers to the fields in the field
@@ -1173,7 +1173,7 @@ public:
 			extra_bottom_width = (2 * border_radius / sqrt32 + sqrt32 * border_d) * sidelength;
 
 		double x_bottom_center = x_center + extra_bottom_width;
-		double y_bottom_center = y_center - 0.5 * border_d;
+		double y_bottom_center = y_center - 0.5 * border_d - sqrt32 * sidelength;
 
 		if (bottom && target_height > 2 * margin && target_width > 2 * margin)
 		{
