@@ -1168,7 +1168,7 @@ public:
 			extra_bottom_width = (2 * border_radius / sqrt32 + sqrt32 * border_d) * sidelength;
 
 		double x_bottom_center = x_center + extra_bottom_width;
-		double y_bottom_center = y_center - 0.5 * border_d;
+		double y_bottom_center = y_center - 0.5 * border_d - sqrt32 * sidelength;
 
 		if (bottom && target_height > 2 * margin && target_width > 2 * margin)
 		{
@@ -1332,9 +1332,12 @@ public:
 				fprintf(f, "L %.2lf %.2lf\n", x, y);
 				fprintf(f, "A %.2lf %.2lf 0 0 1 %.2lf %.2lf ", r, r, x_bb, y_bb);
 				
+/* Turn this off and simply use the Z command to close the SVG path which is the bottom of the puzzle.
 				if (y_bb > y_b)
 					fprintf(f, "L %.2lf %.2lf\n", x_b, y_b);
 				fprintf(f, "\" stroke=\"%s\" stroke-width=\"%.2lf\" fill-opacity=\"0.0\"/>\n", color, stroke_width);
+*/
+				fprintf(f, " Z\" stroke=\"%s\" stroke-width=\"%.2lf\" fill-opacity=\"0.0\"/>\n", color, stroke_width);
 			}
 		}
 
@@ -1783,3 +1786,11 @@ int main(int argc, char *argv[])
 	
 	return 0;
 }
+1171c1171
+< 		double y_bottom_center = y_center - 0.5 * border_d;
+---
+> 		double y_bottom_center = y_center - 0.5 * border_d - sqrt32 * sidelength;
+1265c1265
+< 				int q = 2*j - 3 - i;
+---
+> 				_int q = 2*j - 3 - i;
