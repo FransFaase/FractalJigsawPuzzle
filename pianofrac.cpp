@@ -1,4 +1,4 @@
-/* PianoFrac     Copyright (C) 2016 Frans Faase
+/* PianoFrac     Copyright (C) 2018 Frans Faase
 
    Program for generating Piano Fractal jigsaw puzzles.
 	  
@@ -1163,53 +1163,52 @@ public:
 		else
 			y_center = margin + 3.0 * sidelength;
 
-		double extra_bottom_width = 0;
+		double x_bottom_center = 0;
+		double y_bottom_center = 0;
+
 		if (bottom)
-			extra_bottom_width = (2 * border_radius / sqrt32 + sqrt32 * border_d) * sidelength;
-
-		double x_bottom_center = x_center + extra_bottom_width;
-		double y_bottom_center = y_center - 0.5 * border_d;
-
-		if (bottom && target_height > 2 * margin && target_width > 2 * margin)
 		{
 			double f = 3/sqrt(3);
-			double w = target_width - 2 * margin;
-			double h = target_height - 2 * margin;
 			double w_a = (2 + 2/sqrt32) * border_radius + 3 * sqrt32 * border_d;
 			double h_a =           	2.0 * border_radius +        1.5 * border_d;
-			double y_offset = (h * w_a - w * h_a) / (h/f + w);
-			if (y_offset < 0)
+			double y_offset = 0;
+			if (target_height > 2 * margin && target_width > 2 * margin)
 			{
-				y_offset = 0;
-				sidelength = h / h_a;
-				fprintf(stderr, "h: %lf, w: %lf\n", h / h_a, w / w_a);
-			}
-			else
-			{
-			 	if (y_offset > f*(2/sqrt32 * border_radius + sqrt32 * border_d))
-					y_offset = f*(2/sqrt32 * border_radius + sqrt32 * border_d);
-				sidelength = w / (w_a - y_offset/f);
+				double w = target_width - 2 * margin;
+				double h = target_height - 2 * margin;
+				y_offset = (h * w_a - w * h_a) / (h/f + w);
+				if (y_offset < 0)
+				{
+					y_offset = 0;
+					sidelength = h / h_a;
+					//fprintf(stderr, "h: %lf, w: %lf\n", h / h_a, w / w_a);
+				}
+				else
+				{
+				 	if (y_offset > f*(2/sqrt32 * border_radius + sqrt32 * border_d))
+						y_offset = f*(2/sqrt32 * border_radius + sqrt32 * border_d);
+					sidelength = w / (w_a - y_offset/f);
+				}
 			}
 			total_width = w_a - y_offset/f;
 			total_height = h_a + y_offset;
 			target_width = 2 * margin + sidelength * total_width;
 			target_height = 2 * margin + sidelength * total_height;
-			fprintf(stderr, "%lf %lf %lf %lf\n", w_a, h_a, y_offset, sidelength);
-			fprintf(stderr, "%lf %lf\n", sidelength * ( w_a - y_offset/f ) + 2 * margin, target_width);
-			fprintf(stderr, "%lf %lf\n", sidelength * ( h_a + y_offset ) + 2 * margin, target_height);
+			//fprintf(stderr, "%lf %lf %lf %lf\n", w_a, h_a, y_offset, sidelength);
+			//fprintf(stderr, "%lf %lf\n", sidelength * ( w_a - y_offset/f ) + 2 * margin, target_width);
+			//fprintf(stderr, "%lf %lf\n", sidelength * ( h_a + y_offset ) + 2 * margin, target_height);
 			x_center = margin + sidelength * ( border_radius + sqrt32 * border_d); 
 			y_center = target_height - margin - sidelength * ( border_radius + 0.5 * border_d );
-			fprintf(stderr, "%lf %lf\n", x_center, y_center);
+			//fprintf(stderr, "%lf %lf\n", x_center, y_center);
 			x_bottom_center = target_width - x_center;
 			y_bottom_center = target_height - y_center;
-			fprintf(stderr, "%lf %lf\n", x_bottom_center, y_bottom_center);
-			fprintf(stderr, "%lf %lf\n",
-							x_center + sidelength * (sqrt32 * border_d + 2 * border_radius / sqrt32 - y_offset / f),
-							y_center - sidelength * (0.5 * border_d + y_offset));
-			extra_bottom_width = 0;
+			//fprintf(stderr, "%lf %lf\n", x_bottom_center, y_bottom_center);
+			//fprintf(stderr, "%lf %lf\n",
+			//				x_center + sidelength * (sqrt32 * border_d + 2 * border_radius / sqrt32 - y_offset / f),
+			//				y_center - sidelength * (0.5 * border_d + y_offset));
 		}
 		fprintf(f, "<svg width=\"%.0f\" height=\"%.0f\" xmlns=\"http://www.w3.org/2000/svg\">\n",
-				2*margin + total_width * sidelength + extra_bottom_width, 2*margin + total_height * sidelength);
+				2*margin + total_width * sidelength, 2*margin + total_height * sidelength);
 		
 		// Calculate direction of line with given depth
 		x = 0;
@@ -1305,7 +1304,7 @@ public:
 				double y_bb = y_bottom_center + d  +	0.5 * r;
 				x = x_bottom_center - sqrt32 * d - sqrt32 * r;
 				y = y_bottom_center -	0.5 * d +	0.5 * r;
-				fprintf(stderr, "y %lf %lf %lf\n", y, y_t, y_bb);
+				//fprintf(stderr, "y %lf %lf %lf\n", y, y_t, y_bb);
 				if (y < y_t)
 				{
 					if (y_bb < y_t)
@@ -1440,8 +1439,9 @@ void print_usage(const char *program_name)
 			"  %s used_pieces [-max_occ=n] [-sup_occ=n] [-max=n] [-min=n]\n"
 			"  %s filter (<pieces>)\n"
 			"  %s print\n" 
-			"  %s svg [-border_rad=r] [-border_d=r] [-depth=n] [-colour=c] [-stroke_width=r] [-side_length=r]\n"
-			"         [-bottom] [-width=r] [-height=r] [-margin=r]",
+			"  %s svg [-border_rad=r] [-border_d=r] [-depth=n] [-colour=c]\n"
+			"         [-stroke_width=r] [-side_length=r]\n"
+			"         [-bottom] [-width=r] [-height=r] [-margin=r]\n",
 			program_name, program_name, program_name, program_name,
 			program_name, program_name, program_name);
 }
@@ -1729,10 +1729,7 @@ int main(int argc, char *argv[])
 			{
 				double value;
 				if (sscanf(argv[i]+13, "%lf", &value) > 0)
-				{
-					//fprintf(stderr, "border_d = %lf\n", value);
 					generateSVG.sidelength = value;
-				}
 			}
 			else if (strcmp(argv[i], "-bottom") == 0)
 			{
@@ -1742,28 +1739,19 @@ int main(int argc, char *argv[])
 			{
 				double value;
 				if (sscanf(argv[i]+8, "%lf", &value) > 0 && value > 0.0)
-				{
-					fprintf(stderr, "height = %lf\n", value);
 					generateSVG.target_height = value;
-				}
 			}
 			else if (strncmp(argv[i], "-width=", 7) == 0)
 			{
 				double value;
 				if (sscanf(argv[i]+7, "%lf", &value) > 0 && value > 0.0)
-				{
-					fprintf(stderr, "width = %lf\n", value);
 					generateSVG.target_width = value;
-				}
 			}
 			else if (strncmp(argv[i], "-margin=", 8) == 0)
 			{
 				double value;
 				if (sscanf(argv[i]+8, "%lf", &value) > 0 && value >= 0.0)
-				{
-					fprintf(stderr, "margin = %lf\n", value);
 					generateSVG.margin = value;
-				}
 			}
 			else
 			{ 
