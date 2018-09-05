@@ -21,7 +21,7 @@ GNU General Public License:
 
 Details:
    http://www.iwriteiam.nl/D1612.html#11
-
+   http://www.iwriteiam.nl/D1809.html#2
 */
 
 #include <stdio.h>
@@ -1107,9 +1107,8 @@ public:
 	}
 	virtual char name(int x, int y)
 	{
-		//if (0 <= x && x < FIELD_SIZE && 0 <= y && y < FIELD_SIZE
-		//	&& _vector[_numbers[x+1][y+1]] == 0)
-		//	return _field[x+1][y+1];
+		//int piece_nr = _solution.numberAt(x, y);
+		//return piece_nr == -1 ? ' ' : "0123456789abcdefghijklmn"[piece_nr];
 		return ' ';
 	}
 	
@@ -1123,8 +1122,8 @@ private:
 class GenerateSVG
 {
 public:
-	GenerateSVG() : sidelength(100), color("red"), stroke_width(2), border_radius(1.5), border_d(1.7), bottom(false),
-		target_height(-1), target_width(-1), margin(10)
+	GenerateSVG() : sidelength(100), color("red"), stroke_width(2), space(0), border_radius(1.5), border_d(1.7), bottom(false),
+		target_height(-1), target_width(-1), margin(10),space_factor(0),open_path(false)
 	{
 		sqrt32 = sqrt(0.75);
 		dir_dx[0] =  0.0;     dir_dy[0] = -1;
@@ -1137,6 +1136,7 @@ public:
 	
 	double sidelength;
 	double stroke_width;
+	double space;
 	const char *color;
 	double border_radius;
 	double border_d;
@@ -1223,54 +1223,107 @@ public:
 		rcosa = radius *  x / r;
 		rsina = radius * -y / r;
 		
-		for (int j = 1; j <= 6; j++)
+		int p_a[6] = { -1, -1,  0, +1, +1,  0 };
+		int q_a[6] = {  0, -1, -1,  0, +1, +1 };
+		
+		if (space <= 0)
 		{
-			x = x_center - j * sidelength * 0.5;
-			y = y_center + (j-4) * sidelength * sqrt32;
-			
-			printf("\n");
-			
-			for (int i = 0; i <= j; i++)
+			for (int j = 1; j <= 6; j++)
 			{
-				int p = j - 2 + i;
-				int q = 2*j - 3 - i;
-				char center = solution.numberAt(p, q+1);
-				char o[6];
-				o[0] = solution.numberAt(p-1, q+1  );
-				o[1] = solution.numberAt(p-1, q+1-1);
-				o[2] = solution.numberAt(p  , q+1-1 );
-				o[3] = solution.numberAt(p+1, q+1  );
-				o[4] = solution.numberAt(p+1, q+1+1);
-				o[5] = solution.numberAt(p  , q+1+1);
-				bool isolated = true;
-				for (int k = 0; k < 6 && isolated; k++)
-					isolated = center != o[k];
-				if (isolated)
-					center = o[0];
-				for (int k = 0; k < 6; k++)
-					if (center != o[k]) 
-						drawcap(f, k);
+				x = x_center - j * sidelength * 0.5;
+				y = y_center + (j-4) * sidelength * sqrt32;
 				
-				if (i < j)
+				printf("\n");
+				
+				for (int i = 0; i <= j; i++)
 				{
-					dir = 5;
-					bool drawit = fieldAt(p, q) != ' ' || fieldAt(p+1, q+1) != ' ';
+					int p = j - 2 + i;
+					int q = 2*j - 3 - i;
+					char center = solution.numberAt(p, q+1);
+					char o[6];
+					for (int k = 0; k < 6; k++)
+						o[k] = solution.numberAt(p + p_a[k], q+1 + q_a[k]);
+					bool isolated = true;
+					for (int k = 0; k < 6 && isolated; k++)
+						isolated = center != o[k];
+					if (isolated)
+						center = o[0];
+					for (int k = 0; k < 6; k++)
+						if (center != o[k])
+						{
+							drawcap(f, k);
+							closePath(f);
+						}
+					
+					if (i < j)
+					{
+						dir = 5;
+						bool drawit = fieldAt(p, q) != ' ' || fieldAt(p+1, q+1) != ' ';
+						drawline(drawit ? f : 0, depth, color);
+						closePath(f);
+					}			
+				}
+				for (int i = j-1; i >= 0; i--)
+				{
+					int p = j - 2 + i;
+					int q = 2*j - 3 - i;
+					dir = 3;
+					bool drawit = fieldAt(p,q) != ' ' || fieldAt(p, q-1) != ' ';
 					drawline(drawit ? f : 0, depth, color);
-				}			
-			}
-			for (int i = j-1; i >= 0; i--)
-			{
-				int p = j - 2 + i;
-				int q = 2*j - 3 - i;
-				dir = 3;
-				bool drawit = fieldAt(p,q) != ' ' || fieldAt(p, q-1) != ' ';
-				drawline(drawit ? f : 0, depth, color);
-				dir = 1;
-				drawit = fieldAt(p,q) != ' ' || fieldAt(p-1, q) != ' ';
-				drawline(drawit ? f : 0, depth, color);
+					closePath(f);
+					dir = 1;
+					drawit = fieldAt(p,q) != ' ' || fieldAt(p-1, q) != ' ';
+					drawline(drawit ? f : 0, depth, color);
+					closePath(f);
+				}
 			}
 		}
-
+		else
+		{
+			space_factor = space / radius;
+			//fprintf(stderr, "space = %lf / radius = %lf = %lf\n", space, radius, space / radius);
+			if (space_factor > 0.3)
+			{
+				fprintf(stderr, "Warning: maximal value for space (under these condition) is: %.2lf\n", radius * 0.3);
+				space_factor = 0.3;
+			}
+			for (int piece_nr = 0; piece_nr < solution.nr_pieces; piece_nr++)
+			{
+				// find the start
+				int s_p = 0;
+				int s_q = 0;
+				int d = 0;
+				int last_d = 0;
+				for (int j = 1; j <= 6 && d == 0; j++)
+					for (int i = 0; i <= j && d == 0; i++)
+					{
+						x = x_center + (2*i - j) * sidelength * 0.5;
+						y = y_center + (j-4) * sidelength * sqrt32;
+						int p = j - 2 + i;
+						int q = 2*j - 1 - i;
+						if (solution.numberAt(p+1, q) == piece_nr)
+						{
+							s_p = p;
+							s_q = q-1;
+							d = 4;
+						}
+						else if (solution.numberAt(p, q) == piece_nr)
+						{
+							s_p = p;
+							s_q = q-1;
+							d = 5;
+						}
+					}
+				//fprintf(stderr, " %d %d d=%d\n", s_q, s_p, d);
+				if (d != 0)
+					drawPiece(piece_nr, s_p, s_q, d, depth, solution, p_a, q_a);
+			}
+			
+			// border:
+			x = x_center + (1) * sidelength * 0.5;
+			y = y_center + (1-4) * sidelength * sqrt32;
+			drawPiece(-1, 0, -1, 0, depth, solution, p_a, q_a);
+		}
 		{
 			double r = sidelength * border_radius;
 			double d = sidelength * border_d;
@@ -1354,6 +1407,9 @@ private:
 
 	double dir_dx[6];
 	double dir_dy[6];
+	
+	double space_factor;
+	bool open_path;
 
 	void move(int dir)
 	{
@@ -1361,24 +1417,52 @@ private:
 		y -= rsina * dir_dx[dir] + rcosa * dir_dy[dir];
 	}
 
+	void startPath(FILE* f)
+	{
+		if (f != 0 && !open_path)
+		{
+			fprintf(f, "<path d=\"M%.2lf %.2lf\n",
+					x - space_factor * (rcosa * dir_dx[(dir+1)%6] - rsina * dir_dy[(dir+1)%6]), 
+					y - space_factor * (rsina * dir_dx[(dir+1)%6] + rcosa * dir_dy[(dir+1)%6]));
+			open_path = true;
+		}
+	}
+
+	void closePath(FILE* f)
+	{
+		if (f != 0 && open_path)
+		{
+			fprintf(f, "\" stroke=\"%s\" stroke-width=\"%.2lf\" fill-opacity=\"0.0\"/>\n", color, stroke_width);
+			open_path = false;
+		}
+	}
+	
 	void left(FILE* f, int t)
 	{
+		startPath(f);
 		for (int i = 0; i < t; i++)
 		{
 			move(dir);
 			dir = (dir + 1)%6;
 		}
-		if (f != 0) fprintf(f, "A %.2lf %.2lf 0 0 1 %.2lf %.2lf ", radius, radius, x, y);
+		if (f != 0)
+			fprintf(f, "A %.2lf %.2lf 0 0 1 %.2lf %.2lf ", (1 - space_factor) * radius, (1 - space_factor) * radius,
+					x - space_factor * (rcosa * dir_dx[(dir+1)%6] - rsina * dir_dy[(dir+1)%6]), 
+					y - space_factor * (rsina * dir_dx[(dir+1)%6] + rcosa * dir_dy[(dir+1)%6]));
 	}
 
 	void right(FILE* f, int t)
 	{
+		startPath(f);
 		for (int i = 0; i < t; i++)
 		{
 			dir = (dir + 5)%6;
 			move(dir);
 		}
-		if (f != 0) fprintf(f, "A %.2lf %.2lf 0 0 0 %.2lf %.2lf ", radius, radius, x, y);
+		if (f != 0)
+			fprintf(f, "A %.2lf %.2lf 0 0 0 %.2lf %.2lf ", (1 + space_factor) * radius, (1 + space_factor) * radius,
+					x - space_factor * (rcosa * dir_dx[(dir+1)%6] - rsina * dir_dy[(dir+1)%6]), 
+					y - space_factor * (rsina * dir_dx[(dir+1)%6] + rcosa * dir_dy[(dir+1)%6]));
 	}
 
 
@@ -1397,7 +1481,6 @@ private:
 	{
 		move((dir+4)%6);
 		right(0, 1);
-		if (f != 0) fprintf(f, "<path d=\"M%.2lf %.2lf\n", x, y);
 		drawseg(f, depth);
 		left(f, 2);
 		drawseg(f, depth);
@@ -1405,7 +1488,6 @@ private:
 		drawseg(f, depth);
 		right(0, 1);
 		move((dir+1)%6);
-		if (f != 0) fprintf(f, "\" stroke=\"%s\" stroke-width=\"%.2lf\" fill-opacity=\"0.0\"/>\n", color, stroke_width);
 	}
 
 	void drawcap(FILE* f, int capdir)
@@ -1416,15 +1498,96 @@ private:
 		move(capdir);
 		move((capdir+1)%6);
 		dir = (capdir+4)%6;
-		if (f != 0) fprintf(f, "<path d=\"M%.2lf %.2lf ", x, y);
 		right(f, 2);
-		if (f != 0) fprintf(f, "\" stroke=\"%s\" stroke-width=\"%.2lf\" fill-opacity=\"0.0\"/>\n", color, stroke_width);
 		move((capdir+2)%6);
 		move((capdir+3)%6);
 		
 		x = k_x;
 		y = k_y;
 	}	
+
+	void drawPiece(int piece_nr, int s_p, int s_q, int d, int depth, Solution& solution, int *p_a, int *q_a)
+	{
+		int debug_piece = -1;
+		// follow
+		int first_d = d;
+		int p = s_p;
+		int q = s_q;
+		for (int l = 0; l < 100; l++)
+		{
+			dir = (d+2)%6;
+			if (piece_nr == debug_piece || debug_piece == -1)
+				drawline(stdout, depth, color);
+			//fprintf(stderr, "%d %d -%d-> ", p, q, d);
+			switch(d)
+			{
+			case 0: p--;  q++;  break;
+			case 1: p-=2; q--;  break;
+			case 2: p--;  q-=2; break;
+			case 3: p++;  q--;  break;
+			case 4: p+=2; q++;  break;
+			case 5: p++;  q+=2; break;
+			}
+			//fprintf(stderr, "%d %d [%d]\n", p, q, solution.numberAt(p, q));
+			int k = 8;
+			if (solution.numberAt(p, q) == piece_nr || piece_nr == -1)
+				for (k = 4; k < 10; k++)
+				{
+					//fprintf(stderr, "k = %d, at[%d, %d] = %d\n", k, p + p_a[(d+k)%6], q + q_a[(d+k)%6], solution.numberAt(p + p_a[(d+k)%6], q + q_a[(d+k)%6]));
+					if (solution.numberAt(p + p_a[(d+k)%6], q + q_a[(d+k)%6]) == piece_nr)
+						break;
+				}
+			double k_x = x;
+			double k_y = y;
+			//fprintf(stderr, "d = %d, k = %d\n", d, k);
+			move((d+3)%6);
+			move((d+4)%6);
+			dir = (d+1)%6;
+			if (piece_nr == debug_piece || debug_piece == -1)
+			{
+				if (k == 4)
+				{
+					right(stdout, 2);
+				}
+				else if (k == 5)
+				{
+					right(stdout, 1);
+					left(stdout, 1);
+					right(stdout, 1);
+				}
+				else if (k == 6)
+				{
+					if (piece_nr >= 0 || (solution.numberAt(p, q) != solution.numberAt(p + p_a[(d+3)%6], q + q_a[(d+3)%6]) && solution.numberAt(p, q) != solution.numberAt(p + p_a[(d+5)%6], q + q_a[(d+5)%6])))
+					{
+						right(stdout, 1);
+						left(stdout, 2);
+						right(stdout, 1);
+					}
+					else
+					{
+						//fprintf(stderr, "notch %d %d %d\n", solution.numberAt(p, q), solution.numberAt(p + p_a[(d+5)%6], q + q_a[(d+5)%6]), solution.numberAt(p + p_a[(d+3)%6], q + q_a[(d+3)%6]));
+						left(stdout, 1);
+						right(stdout, 2);
+						left(stdout, 1);
+					}
+				}
+				else 
+				{
+					left(stdout, 2);
+				}
+			}
+			x = k_x;
+			y = k_y;
+			d = (d+k)%6;
+			if (p == s_p && q == s_q && d == first_d)
+			{
+				//fprintf(stderr, "Closed\n");
+				break;
+			}
+			
+		}
+		closePath(stdout);
+	}
 };
 
 // Main body of program
@@ -1440,7 +1603,7 @@ void print_usage(const char *program_name)
 			"  %s filter (<pieces>)\n"
 			"  %s print\n" 
 			"  %s svg [-border_rad=r] [-border_d=r] [-depth=n] [-colour=c]\n"
-			"         [-stroke_width=r] [-side_length=r]\n"
+			"         [-stroke_width=r] [-space=r] [-side_length=r]\n"
 			"         [-bottom] [-width=r] [-height=r] [-margin=r]\n",
 			program_name, program_name, program_name, program_name,
 			program_name, program_name, program_name);
@@ -1694,7 +1857,7 @@ int main(int argc, char *argv[])
 	else if (strcmp(argv[1], "svg") == 0)
 	{
 		GenerateSVG generateSVG;
-		int depth = 2;
+		int depth = -1;
 		for (int i = 2; i < argc; i++)
 		{
 			if (strncmp(argv[i], "-border_rad=", 12) == 0)
@@ -1712,7 +1875,7 @@ int main(int argc, char *argv[])
 			else if (strncmp(argv[i], "-depth=", 7) == 0)
 			{
 				char ch = argv[i][7];
-				if ('1' <= ch && ch <= '4' && argv[i][8] == '\0')
+				if ('0' <= ch && ch <= '4' && argv[i][8] == '\0')
 					depth = ch - '0';
 			}
 			else if (strncmp(argv[i], "-colour=", 8) == 0)
@@ -1724,6 +1887,12 @@ int main(int argc, char *argv[])
 				double value;
 				if (sscanf(argv[i]+14, "%lf", &value) > 0)
 					generateSVG.stroke_width = value;
+			}
+			else if (strncmp(argv[i], "-space=", 7) == 0)
+			{
+				double value;
+				if (sscanf(argv[i]+7, "%lf", &value) > 0)
+					generateSVG.space = value;
 			}
 			else if (strncmp(argv[i], "-side_length=", 13) == 0)
 			{
