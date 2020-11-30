@@ -7,6 +7,9 @@ https://tkkrlab.nl/wiki/Fractal_Jigsaw_Puzzle
 For blogs about the developement see:
 http://www.iwriteiam.nl/Dpuzzle.html#fracjig
 
+Ready made puzzles can be ordered from:
+https://www.annabelester.nl/
+
 # Example usage
 
 Start for example with:
