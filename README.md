@@ -19,7 +19,7 @@ Start for example with:
 The file `sols.txt` will now contains all solutions. Some solutions will use the same pieces and thus
 can be viewed as solutions for the same puzzle. To get the file with all puzzles, use:
 ```
-./pianofrac used_pieces <sols.txt | sort | uniq -c | sort >puzzles.txt`
+./pianofrac used_pieces <sols.txt | sort | uniq -c | sort >puzzles.txt
 ```
 Now you can select one of the puzzles. Take for example: `1,1,1,2,2,2,2,2,3,4,4,4,4,7,7,10`.
 To print all the solutions for this puzzle, use the command:
