@@ -107,12 +107,12 @@ two pieces with the same shape. It makes sense to use both options, as long as t
 for `-sup_occ` is larger than `-max_occ`. The following command will return all puzzles
 with at most four the same pieces of each kind of piece that is used in the puzzle:
 ```
-./pianofrac used_pieces -max_occ=4 -max=16 <sols.txt | sort | uniq -c | sort >puzzles.txt
+./pianofrac used_pieces -max_occ=4 <sols.txt | sort | uniq -c | sort >puzzles.txt
 ```
 The following command will return all puzzles with at most nine 'double' pieces for all
 the kinds of pieces used in the puzzle:
 ```
-./pianofrac used_pieces -max_occ=4 -max=16 <sols.txt | sort | uniq -c | sort >puzzles.txt
+./pianofrac used_pieces -max_sup=9 <sols.txt | sort | uniq -c | sort >puzzles.txt
 ```
 
 ## Printing
