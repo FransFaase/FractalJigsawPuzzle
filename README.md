@@ -85,6 +85,36 @@ of kind '7', two pieces of kind '7', and one piece of kind '10' are used in the 
 
 The file `puzzles.txt` is quite large and also contains many puzzles with a lot of pieces or just
 a few number of pieces. To filter out puzzles with many or few pieces the `-min` and `-max` options
-can be used.
+can be used. The following command will return all puzzles with at most 17 pieces:
+```
+./pianofrac used_pieces -max=17 <sols.txt | sort | uniq -c | sort >puzzles.txt
+```
+To get all puzzles with 16 pieces use:
+```
+./pianofrac used_pieces -min=16 -max=16 <sols.txt | sort | uniq -c | sort >puzzles.txt
+```
+If some combination of options result in no solutions at all, the command will return the
+upper or lower limits of valid values.
+
+Some solutions will have a lot of pieces of the same kind. There are two options for
+selecting puzzles that have less 'double' pieces. The option `-max_occ` restricts the
+maximum number of times that a piece of the same shape may occur. And the option `-sup_occ`
+restricts the total number of pieces that have the same shape. If for example `-max_occ=2`
+is used, it could still be the case that for each piece there is another piece with the same
+shape. (This is only possible if there is an even number of pieces and that for each shape
+there are two pieces in the design.) With the option `-sup_occ=2` there could be at most
+two pieces with the same shape. It makes sense to use both options, as long as the value
+for `-sup_occ` is larger than `-max_occ`. The following command will return all puzzles
+with at most four the same pieces of each kind of piece that is used in the puzzle:
+```
+./pianofrac used_pieces -max_occ=4 -max=16 <sols.txt | sort | uniq -c | sort >puzzles.txt
+```
+The following command will return all puzzles with at most nine 'double' pieces for all
+the kinds of pieces used in the puzzle:
+```
+./pianofrac used_pieces -max_occ=4 -max=16 <sols.txt | sort | uniq -c | sort >puzzles.txt
+```
+
+## Printing
 
 (To be continued...)
