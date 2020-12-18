@@ -73,13 +73,17 @@ will use exactly the same pieces and thus be solutions for the sample puzzle. To
 the `used_pieces` command can be used. To get a list of puzzles, sorted with increasing number of
 solutions, use:
 ```
-./pianofrac used_pieces <sols.txt | sort | uniq -c | sort >puzzles.txt
+./pianofrac used_pieces <sols.txt | sort | uniq -c | sort -g >puzzles.txt
 ```
-Each line of the `puzzles.txt` file represents one puzzle and contains a comma separated list of
-the kinds of pieces that are used, where if a number occurs more than once, it means that that
-number of pieces of that kind of piece are used. For example, the string `1,1,1,2,2,2,2,2,3,4,4,4,4,7,7,10`
-means that three pieces of kind '1', five pieces of kind '2', one piece of kind '3', four pieces
-of kind '7', two pieces of kind '7', and one piece of kind '10' are used in the puzzle.
+The use of the `| sort | uniq -c` will sort and count the output such that each line will contain
+the number of solutions followed by the representation of the puzzle. By adding `| sort -g` the
+puzzles will be sorted by increasing number of solutions in the file `puzzles.txt`.
+The representation of the puzzle on each line of the `puzzles.txt` consisting of a comma separated
+list of the kinds of pieces that are used, where if a number occurs more than once, it means that
+that number of pieces of that kind of piece are used. For example, the string
+`1,1,1,2,2,2,2,2,3,4,4,4,4,7,7,10` means that three pieces of kind '1', five pieces of kind '2',
+one piece of kind '3', four pieces of kind '7', two pieces of kind '7', and one piece of kind '10'
+are used in the puzzle.
 
 ## Filtering
 
@@ -87,11 +91,11 @@ The file `puzzles.txt` is quite large and also contains many puzzles with a lot 
 a few number of pieces. To filter out puzzles with many or few pieces the `-min` and `-max` options
 can be used. The following command will return all puzzles with at most 17 pieces:
 ```
-./pianofrac used_pieces -max=17 <sols.txt | sort | uniq -c | sort >puzzles.txt
+./pianofrac used_pieces -max=17 <sols.txt | sort | uniq -c | sort -g >puzzles.txt
 ```
 To get all puzzles with 16 pieces use:
 ```
-./pianofrac used_pieces -min=16 -max=16 <sols.txt | sort | uniq -c | sort >puzzles.txt
+./pianofrac used_pieces -min=16 -max=16 <sols.txt | sort | uniq -c | sort -g >puzzles.txt
 ```
 If some combination of options result in no solutions at all, the command will return the
 upper or lower limits of valid values.
@@ -107,12 +111,12 @@ two pieces with the same shape. It makes sense to use both options, as long as t
 for `-sup_occ` is larger than `-max_occ`. The following command will return all puzzles
 with at most four the same pieces of each kind of piece that is used in the puzzle:
 ```
-./pianofrac used_pieces -max_occ=4 <sols.txt | sort | uniq -c | sort >puzzles.txt
+./pianofrac used_pieces -max_occ=4 <sols.txt | sort | uniq -c | sort -g >puzzles.txt
 ```
 The following command will return all puzzles with at most nine 'double' pieces for all
 the kinds of pieces used in the puzzle:
 ```
-./pianofrac used_pieces -max_sup=9 <sols.txt | sort | uniq -c | sort >puzzles.txt
+./pianofrac used_pieces -max_sup=9 <sols.txt | sort | uniq -c | sort -g >puzzles.txt
 ```
 
 ## Printing
