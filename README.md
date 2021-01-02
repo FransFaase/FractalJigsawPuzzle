@@ -121,4 +121,54 @@ the kinds of pieces used in the puzzle:
 
 ## Printing
 
-(To be continued...)
+After having made a selection from the `puzzles.txt` file, by taking the string representing
+the puzzle, the following command can be used to 'print' the solutions using slash and underline
+characters:
+```
+./pianofrac filter 1,1,1,2,2,2,2,2,3,4,4,4,4,7,7,10 <sols.txt | ./pianofrac print
+```
+To generate a SVG file, the most simple command is:
+```
+./pianofrac filter 1,1,1,2,2,2,2,2,3,4,4,4,4,7,7,10 <sols.txt | ./pianofrac svg >puzzle.svg
+```
+This will generate a single line between the pieces and with the outside. This does not
+always result in puzzles that can be solved in other ways that is printed. It better to
+specify a distance between the pieces, using the `-space` option, like:
+To generate an SVG file for this puzzle, use, for example:
+```
+./pianofrac filter 1,1,1,2,2,2,2,2,3,4,4,4,4,7,7,10 <sols.txt >puzzle.txt
+./pianofrac svg -space=2 <puzzle.txt >puzzle.svg
+```
+This results in the file [puzzle.svg](https://github.com/FransFaase/FractalJigsawPuzzle/blob/master/puzzle.jpg)
+as show at the top of this page. The `svg` command has a lot of options to change the
+generated SVG file. The option `-depth` specifies the depth of the 'recursion' of the
+fractal. The default value is -1. With every higher value, the depth increases with one.
+Large values could result in very large files.
+
+To change the size of the generated SVG, the option `-side_length` (with a default of
+value of 100) can be used. 
+To change the shape of the surrounding border of the puzzle, the options `-border_rad`
+and `-border_d` can be used. The `-border_rad` (with a default value of 1.5) specifies the
+radius of the corners, where `-border_d` (with a default value of 1.7) specifies the
+distance of the sides from the puzzle. The values of these options are relative to
+the value of `-side_length`, meaning that the are multiplied with that value and do not
+need to be changed when the value for `-side_length` is changed. 
+
+With the option `-colour` one can specify the name of an alternative colour to used as
+a line colour for the SVG file and with the `-stroke_width` (with a default value of 2)
+the stroke width can be changed.
+
+When cutting the puzzle with a laser cutter, one often also needs a bottom. To include
+the bottom into the generated SVG file, use the `-bottom` option.
+
+If one wants to generate the largest possible puzzle from some rectangle piece of
+material, including the bottom, one can also use the options `-width`, `-height` and
+`-margin` to specify the dimensions of the square and the distance of the margin to
+avoid. This causes value of `-side_length` to be scaled such that the puzzle and the
+bottom fit within the specified range. The value of `-margin` (with a default value of
+10) is relative to the value of `-side_length`. An example usage of this is:
+```
+./pianofrac svg -space=2 -bottom -height=600 -width=700 <puzzle.txt >puzzle.svg
+```
+
+
