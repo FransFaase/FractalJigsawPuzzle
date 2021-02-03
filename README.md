@@ -132,15 +132,22 @@ To generate a SVG file, the most simple command is:
 ./pianofrac filter 1,1,1,2,2,2,2,2,3,4,4,4,4,7,7,10 <sols.txt | ./pianofrac svg >puzzle.svg
 ```
 This will generate a single line between the pieces and with the outside. This does not
-always result in puzzles that can be solved in other ways that is printed. It better to
-specify a distance between the pieces, using the `-space` option, like:
+always result in puzzles that can be solved in other ways than that is printed. It better to
+specify a distance between the pieces, using the `-space` option.
 To generate an SVG file for this puzzle, use, for example:
 ```
 ./pianofrac filter 1,1,1,2,2,2,2,2,3,4,4,4,4,7,7,10 <sols.txt >puzzle.txt
 ./pianofrac svg -space=2 <puzzle.txt >puzzle.svg
 ```
 This results in the file [puzzle.svg](https://github.com/FransFaase/FractalJigsawPuzzle/blob/master/puzzle.jpg)
-as show at the top of this page. The `svg` command has a lot of options to change the
+as show at the top of this page. If `-space=0` will default to generating a single line
+between the pieces and with the outside. The single line pieces have some sharp edges as
+a result of how the generation is implemented. If `-space=0.0001` is used this will
+result an SVG file that looks like the single line but without the rough edges. However,
+do note that it still has double lines and that if you use it in combination with a 
+laser cutter, you might want to remove the double lines first to reduce the cutting.
+
+The `svg` command has a lot of options to change the
 generated SVG file. The option `-depth` specifies the depth of the 'recursion' of the
 fractal. The default value is -1. With every higher value, the depth increases with one.
 Large values could result in very large files.
