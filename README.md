@@ -143,7 +143,7 @@ This results in the file [puzzle.svg](https://github.com/FransFaase/FractalJigsa
 as show at the top of this page. If `-space=0` will default to generating a single line
 between the pieces and with the outside. The single line pieces have some sharp edges as
 a result of how the generation is implemented. If `-space=0.0001` is used this will
-result an SVG file that looks like the single line but without the rough edges. However,
+result an SVG file that looks like the single line but without the sharp edges. However,
 do note that it still has double lines and that if you use it in combination with a 
 laser cutter, you might want to remove the double lines first to reduce the cutting.
 
