@@ -1052,6 +1052,7 @@ public:
 			if (used_pieces[i].occurances > rhs.used_pieces[i].occurances)
 				return 1;
 		}
+		return 0;
 	}
 	void printSignature(FILE* f)
 	{
@@ -1122,7 +1123,7 @@ private:
 class GenerateSVG
 {
 public:
-	GenerateSVG() : sidelength(100), color("red"), stroke_width(2), space(0), border_radius(1.5), border_d(1.7), bottom(false),
+	GenerateSVG() : sidelength(100), stroke_width(2), space(0), color("red"), border_radius(1.5), border_d(1.7), bottom(false),
 		target_height(-1), target_width(-1), margin(10),space_factor(0),open_path(false)
 	{
 		sqrt32 = sqrt(0.75);
@@ -1293,7 +1294,6 @@ public:
 				int s_p = 0;
 				int s_q = 0;
 				int d = 0;
-				int last_d = 0;
 				for (int j = 1; j <= 6 && d == 0; j++)
 					for (int i = 0; i <= j && d == 0; i++)
 					{

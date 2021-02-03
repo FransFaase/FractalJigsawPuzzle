@@ -269,7 +269,7 @@ void print(FILE *f)
         if (vector->name[0] != '\0')
             fprintf(f, " %s\n", vector->name);
         else
-            fprintf(f, "\n", vector->nr);
+            fprintf(f, "\n");
     }
 }
 
@@ -295,7 +295,7 @@ void print_numeric(FILE *f)
         if (vector->name[0] != '\0')
             fprintf(f, " %s\n", vector->name);
         else
-            fprintf(f, "\n", vector->nr);
+            fprintf(f, "\n");
     }
 }
 
@@ -842,11 +842,13 @@ bool reduce_groups(IgnoredNodes &ignoredNodes, bool mark_as_hot)
                 bool to_be_reduced[MAX_GROUP_SIZE2];
                 
                 for (int i = 1; i < group_size2; i++)
-                    if (to_be_reduced[i] = (count[i] > 0 && !possible[group_size2 - 1 - i]))
+                {
+                	to_be_reduced[i] = count[i] > 0 && !possible[group_size2 - 1 - i];
+                    if (to_be_reduced[i])
                     {
                         if (flog != 0)
                         {
-                            fprintf(flog, "- reduce %d for:", count[i]);
+                            fprintf(flog, "- reduce %ld for:", count[i]);
                             for (int j = 0; j < group_size; j++)
                                 fprintf(flog, "%c", (i & (1 << j)) ? '1' : '0');
                             fprintf(flog, "\n");
@@ -854,6 +856,7 @@ bool reduce_groups(IgnoredNodes &ignoredNodes, bool mark_as_hot)
                                                 
                         something_to_reduce = true;
                     }
+                }
                     
                 if (something_to_reduce)
                 {
@@ -1017,7 +1020,7 @@ bool solve()
         {
             if (flog != 0)
             {
-                fprintf(flog, "%4d: ", (start_periode - start_time)/1000);
+                fprintf(flog, "%4ld: ", (start_periode - start_time)/1000);
                 for (; sol_found_in_periode > 0; sol_found_in_periode--)
                     fprintf(flog, "*");
                 fprintf(flog, "  %lf\n", nr_solutions / ((now - start_time)/1000.0));
@@ -1026,7 +1029,7 @@ bool solve()
         }
         while (now > start_periode + 1000)
         {
-            if (flog != 0) fprintf(flog, "%4d: \n", (start_periode - start_time)/1000);
+            if (flog != 0) fprintf(flog, "%4ld: \n", (start_periode - start_time)/1000);
             start_periode += 1000;
         }
         
