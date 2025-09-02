@@ -116,7 +116,7 @@ with at most four the same pieces of each kind of piece that is used in the puzz
 The following command will return all puzzles with at most nine 'double' pieces for all
 the kinds of pieces used in the puzzle:
 ```
-./pianofrac used_pieces -max_sup=9 <sols.txt | sort | uniq -c | sort -g >puzzles.txt
+./pianofrac used_pieces -sup_occ=9 <sols.txt | sort | uniq -c | sort -g >puzzles.txt
 ```
 
 ## Printing
